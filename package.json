@@ -5,5 +5,13 @@
   "main": "index.js",
   "repository": "https://github.com/joshuef/aut-rust-version-bumper",
   "author": "Josh Wilson",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+  },
+  "dependencies": {
+    "@actions/core": "^1.2.4",
+    "@actions/exec": "^1.0.4",
+    "@iarna/toml": "^2.2.5",
+    "standard-version": "^8.0.2"
+  }
 }
