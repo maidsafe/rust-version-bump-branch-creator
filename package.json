@@ -1,0 +1,9 @@
+{
+  "name": "auto-rust-version-bumper",
+  "version": "1.0.0",
+  "description": "Automatically bump rust crate's changelog + version based upon conventional commits.",
+  "main": "index.js",
+  "repository": "https://github.com/joshuef/aut-rust-version-bumper",
+  "author": "Josh Wilson",
+  "license": "MIT"
+}
