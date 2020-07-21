@@ -80,6 +80,10 @@ const bump = async () => {
         // update branch with changes
         core.debug(`Attempting to push to ${branch}`);
 
+        // first push without tags, in case this fails for some reason
+        await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branch}`);
+
+        // then push with tags
         await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branch} --tags`);
     
     } catch (error) {
