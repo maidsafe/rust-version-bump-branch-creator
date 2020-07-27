@@ -1,5 +1,6 @@
 const core = require('@actions/core');
 const exec = require('@actions/exec');
+const github = require('@actions/github');
 const standardVersion = require('standard-version');
 const toml = require('@iarna/toml')
 const fs = require('fs');
@@ -77,14 +78,52 @@ const bump = async () => {
         await exec.exec('git', ['commit', '-m', commit_message]);
         await exec.exec('git', ['tag', version, '-f']);
 
+        let branchName = `version-bump-${version}`;
+
         // update branch with changes
-        core.debug(`Attempting to push to ${branch}`);
+        core.debug(`Creating a new branch: ${branchName}`);
 
         // first push without tags, in case this fails for some reason
-        await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branch}`);
+        await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branchName}`);
 
         // then push with tags
-        await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branch} --tags`);
+        // await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branch} --tags`);
+
+        let owner = repo.split('/')[0];
+        let repoForOctokit = repo.split('/')[1];
+
+        const octokit = github.getOctokit(token);
+
+        let pr = await octokit.pulls.create({
+          owner,
+          repo: repoForOctokit,
+          title: `Automated version bump + changelog for ${version}`,
+          head: branchName,
+          base : 'master'
+      });
+
+      core.debug(`THE PR::::: response: ${pr}`);
+
+
+      // merge the PR
+      octokit.pulls.merge({
+        owner,
+        repo,
+        pull_number,
+      });
+
+
+      // octokit.pulls.createReview({
+      //           owner,
+      //   repo,
+      //   pull_number,
+      //   comments[].path,
+      //   comments[].position,
+      //   comments[].body
+      //         })
+
+        // github create PR.
+
     
     } catch (error) {
       core.setFailed(error.message);
