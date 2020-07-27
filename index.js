@@ -8,17 +8,18 @@ const fs = require('fs');
 const bump = async () => {
     try {
         core.debug("Running rust auto bumper ");
-        const token = core.getInput('personal-access-token');
-        const branch = core.getInput('branch');
+        const token = core.getInput('token');
         
         if( token.length === 0 ) {
-            core.setFailed("`personal-access-token must be set")
+            core.setFailed("`token` must be set")
         }
 
         await exec.exec('git config --local user.email "action@github.com"');
         await exec.exec('git config --local user.name "GitHub Action"');
 
         let actor = process.env.GITHUB_ACTOR;
+        let botName = "rust-auto-merge-bot";
+        core.debug(`ACTOR: ${actor}`);
         let repo = process.env.GITHUB_REPOSITORY;
     
         // bump the version
@@ -83,47 +84,39 @@ const bump = async () => {
         // update branch with changes
         core.debug(`Creating a new branch: ${branchName}`);
 
-        // first push without tags, in case this fails for some reason
-        await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branchName}`);
-
-        // then push with tags
-        // await exec.exec(`git push "https://${actor}:${token}@github.com/${repo}" HEAD:${branch} --tags`);
+        // push without tags, we tag once the PR has been merged (if you're doing that)
+        await exec.exec(`git push "https://${botName}:${token}@github.com/${repo}" HEAD:${branchName} -f`);
 
         let owner = repo.split('/')[0];
         let repoForOctokit = repo.split('/')[1];
 
+        core.debug(`owner: ${owner}, repo: ${repoForOctokit}`);
         const octokit = github.getOctokit(token);
 
-        let pr = await octokit.pulls.create({
-          owner,
-          repo: repoForOctokit,
-          title: `Automated version bump + changelog for ${version}`,
-          head: branchName,
-          base : 'master'
-      });
+        core.debug("about to create PR")
 
-      core.debug(`THE PR::::: response: ${pr}`);
+        try{ 
 
-
-      // merge the PR
-      octokit.pulls.merge({
-        owner,
-        repo,
-        pull_number,
-      });
-
-
-      // octokit.pulls.createReview({
-      //           owner,
-      //   repo,
-      //   pull_number,
-      //   comments[].path,
-      //   comments[].position,
-      //   comments[].body
-      //         })
-
-        // github create PR.
-
+            let pr = await octokit.pulls.create({
+              owner,
+              repo: repoForOctokit,
+              title: `Automated version bump + changelog for ${version}`,
+              head: branchName,
+              base : 'master'
+          });
+         
+        }
+        catch (e )
+        {
+          if ( e.message.includes('already exists'))
+          {
+            // do nothing
+            core.debug("Branch already exists, so will be updated after the last push")
+          }
+          else {
+            core.setFailed(e);
+          }
+        }
     
     } catch (error) {
       core.setFailed(error.message);

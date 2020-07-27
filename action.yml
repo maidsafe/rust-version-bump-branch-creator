@@ -1,16 +1,10 @@
 name: 'Rust Auto Version Bumper'
 description: "Automatically bump rust crate's changelog version based upon conventional commits."
 inputs:
-  personal-access-token:  # github secret for pushing changes to repo
-    description: 'Github Action access token for updating the repo. This should be a personal action token, and _not_ the standard secret token (which cannot push/trigger other actions, such as release steps on tag eg)'
+  token:  # github secret for pushing changes to repo
+    description: 'Github Action access token for creating a version bump PR automatically. This should be a personal action token, and _not_ the standard secret token (which cannot push/trigger other actions, such as release steps on tag eg). BUt also different to any token needed for automatic merging of PRs...'
     required: true
-  branch:  # github secret for pushing changes to repo
-    description: 'Branch to push to. Defaults to `master`'
-    required: true
-    default: 'master'
-# outputs:
-#   time: # id of output
-#     description: 'Version update'
+
 runs:
   using: 'node12'
   main: 'index.js'
