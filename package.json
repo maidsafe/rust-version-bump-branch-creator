@@ -6,11 +6,11 @@
   "repository": "https://github.com/joshuef/aut-rust-version-bumper",
   "author": "Josh Wilson",
   "license": "MIT",
-  "scripts": {
-  },
+  "scripts": {},
   "dependencies": {
     "@actions/core": "^1.2.4",
     "@actions/exec": "^1.0.4",
+    "@actions/github": "^4.0.0",
     "@iarna/toml": "^2.2.5",
     "standard-version": "^8.0.2"
   }
