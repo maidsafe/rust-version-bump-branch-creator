@@ -8,10 +8,10 @@
   "license": "MIT",
   "scripts": {},
   "dependencies": {
-    "@actions/core": "^1.2.4",
-    "@actions/exec": "^1.0.4",
-    "@actions/github": "^4.0.0",
+    "@actions/core": "^1.4.0",
+    "@actions/exec": "^1.1.0",
+    "@actions/github": "^5.0.0",
     "@iarna/toml": "^2.2.5",
-    "standard-version": "^8.0.2"
+    "standard-version": "^9.3.0"
   }
 }
