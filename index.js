@@ -97,7 +97,7 @@ const bump = async () => {
 
         try{ 
 
-            let pr = await octokit.pulls.create({
+            let pr = await octokit.rest.pulls.create({
               owner,
               repo: repoForOctokit,
               title: `Automated version bump + changelog for ${version}`,
