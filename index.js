@@ -103,7 +103,7 @@ const bump = async () => {
               repo: repoForOctokit,
               title: `Automated version bump + changelog for ${version}`,
               head: branchName,
-              base : 'main'
+              base : core.getInput('target_branch')
           });
          
         }
