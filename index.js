@@ -64,15 +64,31 @@ const bump = async () => {
         core.debug(`Commit message added was: ${commit_message}`);
 
         // parse and update cargo.toml
-        let cargo = fs.readFileSync('Cargo.toml');
+        const manifest = toml.parse(fs.readFileSync('Cargo.toml', 'utf8'));
+        manifest.package.version = cargo_version;
+        fs.writeFileSync('Cargo.toml', toml.stringify(manifest));
 
-        var json = toml.parse(cargo);
-        // special vargo version to remove "v"
-        json.package.version = cargo_version;
+        // parse and update Cargo.lock (if present)
+        let lockfile;
+        try {
+          lockfile = toml.parse(fs.readFileSync('Cargo.lock', 'utf8'));
+        } catch (error) {
+          if (error.code === 'ENOENT') {
+            core.debug('No Cargo.lock to update');
+          } else {
+            throw error
+          }
+        }
 
-        let cargoUpdated = toml.stringify(json);
-
-        fs.writeFileSync('Cargo.toml', cargoUpdated);
+        if (lockfile != null) {
+          const crate = lockfile.package.find(p => p.name === manifest.package.name);
+          if (crate != null) {
+            crate.version = cargo_version;
+            fs.writeFileSync('Cargo.lock', toml.stringify(lockfile));
+          } else {
+            core.warn(`Self crate (${manifest.package.name}) not present in lockfile packages`);
+          }
+        }
 
         // commit changes
         await exec.exec('git', ['reset', '--soft', 'HEAD~1']);
