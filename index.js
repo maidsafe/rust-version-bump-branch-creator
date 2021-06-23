@@ -12,6 +12,7 @@ const bump = async () => {
         
         if( token.length === 0 ) {
             core.setFailed("`token` must be set")
+            return
         }
 
         await exec.exec('git config --local user.email "action@github.com"');
