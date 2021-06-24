@@ -5,6 +5,11 @@ inputs:
     description: 'Github Action access token for creating a version bump PR automatically. This should be a personal access token, and _not_ the standard secret token (which cannot push/trigger other actions, such as release steps on tag eg). But also different to any token needed for automatic merging of PRs...'
     required: true
 
+  target_branch:
+    description: The branch to compare against
+    required: true
+    default: main
+
 runs:
   using: 'node12'
   main: 'index.js'
