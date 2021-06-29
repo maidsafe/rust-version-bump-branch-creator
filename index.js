@@ -2,7 +2,7 @@ const core = require('@actions/core');
 const exec = require('@actions/exec');
 const github = require('@actions/github');
 const standardVersion = require('standard-version');
-const toml = require('@iarna/toml')
+const toml = require('toml-patch')
 const fs = require('fs');
 
 const bump = async () => {
@@ -64,14 +64,15 @@ const bump = async () => {
         core.debug(`Commit message added was: ${commit_message}`);
 
         // parse and update cargo.toml
-        const manifest = toml.parse(fs.readFileSync('Cargo.toml', 'utf8'));
+        const manifestToml = fs.readFileSync('Cargo.toml', 'utf8');
+        const manifest = toml.parse(manifestToml);
         manifest.package.version = cargo_version;
-        fs.writeFileSync('Cargo.toml', toml.stringify(manifest));
+        fs.writeFileSync('Cargo.toml', toml.patch(manifestToml, manifest));
 
         // parse and update Cargo.lock (if present)
-        let lockfile;
+        let lockfileToml;
         try {
-          lockfile = toml.parse(fs.readFileSync('Cargo.lock', 'utf8'));
+          lockfileToml = fs.readFileSync('Cargo.lock', 'utf8');
         } catch (error) {
           if (error.code === 'ENOENT') {
             core.debug('No Cargo.lock to update');
@@ -80,11 +81,12 @@ const bump = async () => {
           }
         }
 
-        if (lockfile != null) {
+        if (lockfileToml != null) {
+          const lockfile = toml.parse(lockfileToml);
           const crate = lockfile.package.find(p => p.name === manifest.package.name);
           if (crate != null) {
             crate.version = cargo_version;
-            fs.writeFileSync('Cargo.lock', toml.stringify(lockfile));
+            fs.writeFileSync('Cargo.lock', toml.patch(lockfileToml, lockfile));
           } else {
             core.warn(`Self crate (${manifest.package.name}) not present in lockfile packages`);
           }
