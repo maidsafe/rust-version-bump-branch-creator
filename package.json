@@ -11,7 +11,7 @@
     "@actions/core": "^1.4.0",
     "@actions/exec": "^1.1.0",
     "@actions/github": "^5.0.0",
-    "@iarna/toml": "^2.2.5",
-    "standard-version": "^9.3.0"
+    "standard-version": "^9.3.0",
+    "toml-patch": "^0.2.3"
   }
 }
